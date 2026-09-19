@@ -1,0 +1,1930 @@
+Yes. Below is the **complete copy-paste prompt** for Builder AI, including **OTP registration/authentication, citizen/admin roles, REST API, React, Node.js, Express, mock data, and SQL-ready architecture**.
+
+Build a complete full-stack web application called:
+
+# MINIMAL WARD-LEVEL CIVIC ISSUE TRACKING PORTAL
+
+The project is a web-based civic complaint management system for a local ward. Citizens should be able to register using OTP verification, report civic issues, track their complaints, and view their complaint history. Ward administrators should be able to view, manage, assign, and update civic complaints.
+
+This is intended as a **college-level full-stack project**.
+
+The application should be functional, clean, responsive, modular, and easy to extend.
+
+---
+
+# 1. TECHNOLOGY STACK
+
+## Frontend
+
+Use:
+
+* React.js
+* JavaScript
+* HTML5
+* CSS3
+* React Router
+* Fetch API or Axios
+
+Prefer React.js rather than plain HTML/JavaScript.
+
+The frontend must communicate with the backend only through REST APIs.
+
+---
+
+## Backend
+
+Use:
+
+* Node.js
+* Express.js
+* JavaScript
+* REST API
+* JWT authentication
+* bcrypt for password hashing
+
+---
+
+## Database
+
+IMPORTANT:
+
+**DO NOT IMPLEMENT THE SQL DATABASE YET.**
+
+I will add the SQL database later.
+
+Use mock/in-memory data or JSON data for now.
+
+However, the backend architecture must be designed so that MySQL/PostgreSQL can easily be added later without rewriting the frontend or the complete backend.
+
+---
+
+# 2. PROJECT OBJECTIVE
+
+The main objective is to create a minimal digital platform for managing civic complaints within a ward.
+
+Citizens can report problems such as:
+
+* Garbage accumulation
+* Damaged roads
+* Potholes
+* Broken streetlights
+* Drainage problems
+* Water supply problems
+* Illegal dumping
+* Public toilet problems
+* Damaged public infrastructure
+* Other civic issues
+
+The administrator can manage these complaints and update their progress.
+
+The main workflow should be:
+
+```text
+Citizen Registration
+        ↓
+OTP Verification
+        ↓
+Login
+        ↓
+Citizen Dashboard
+        ↓
+Report Civic Issue
+        ↓
+Issue Submitted
+        ↓
+Administrator Reviews Issue
+        ↓
+Issue Assigned
+        ↓
+Work In Progress
+        ↓
+Issue Resolved
+```
+
+---
+
+# 3. USER ROLES
+
+There should be two user roles.
+
+## Citizen
+
+Citizens can:
+
+* Register
+* Verify account using OTP
+* Login
+* Logout
+* Reset password using OTP
+* View dashboard
+* Report civic issues
+* Upload issue image
+* View their complaints
+* Search complaints
+* Filter complaints
+* View complaint details
+* Track complaint status
+* View administrator remarks
+* View profile
+
+---
+
+## Ward Administrator
+
+Administrators can:
+
+* Login
+* View administrator dashboard
+* View all complaints
+* Search complaints
+* Filter complaints
+* View complaint details
+* Change complaint status
+* Change priority
+* Add remarks
+* View citizen information related to complaints
+* View basic statistics
+* View issues by category
+* View issues by status
+
+The public citizen registration page must NOT allow users to register as administrators.
+
+---
+
+# 4. AUTHENTICATION SYSTEM
+
+Implement a complete authentication system.
+
+Authentication should include:
+
+* Citizen registration
+* OTP verification
+* Login
+* JWT authentication
+* Logout
+* Forgot password
+* OTP-based password reset
+* Role-based authorization
+
+---
+
+# 5. CITIZEN REGISTRATION
+
+Create a registration page.
+
+Fields:
+
+* Full Name
+* Email Address
+* Mobile Number
+* Password
+* Confirm Password
+* Ward Number
+* Address
+
+Example:
+
+```text
+Full Name:
+[________________________]
+
+Email:
+[________________________]
+
+Mobile Number:
+[________________________]
+
+Ward:
+[ Select Ward ]
+
+Address:
+[________________________]
+
+Password:
+[________________________]
+
+Confirm Password:
+[________________________]
+
+[ Send OTP ]
+```
+
+Validate all fields.
+
+The user must provide a valid email and mobile number.
+
+---
+
+# 6. OTP REGISTRATION FLOW
+
+After the registration form is submitted:
+
+```text
+Registration Form
+        ↓
+Validate Information
+        ↓
+Generate 6 Digit OTP
+        ↓
+Send OTP
+        ↓
+OTP Verification Page
+        ↓
+Verify OTP
+        ↓
+Create Verified Account
+        ↓
+Registration Successful
+        ↓
+Login Page
+```
+
+The user should NOT be considered fully registered/verified until the OTP is successfully verified.
+
+---
+
+# 7. OTP REQUIREMENTS
+
+OTP must:
+
+* Contain exactly 6 digits
+* Be randomly generated
+* Expire after 5 minutes
+* Be usable only once
+* Allow maximum 5 incorrect attempts
+* Have a resend cooldown
+* Invalidate the previous OTP when a new OTP is generated
+
+Use secure random OTP generation.
+
+For the initial project, store OTP information temporarily in memory.
+
+Later it can be moved to an SQL table.
+
+---
+
+# 8. SEND OTP API
+
+Create:
+
+```text
+POST /api/auth/send-otp
+```
+
+Request:
+
+```json
+{
+  "email": "citizen@example.com",
+  "mobile": "9876543210"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "OTP sent successfully"
+}
+```
+
+Do not expose OTP in the API response.
+
+---
+
+# 9. DEVELOPMENT OTP MODE
+
+Since an actual SMS/email service will not be configured initially, provide a development OTP mode.
+
+Use:
+
+```text
+OTP_MODE=development
+```
+
+When development mode is active, the OTP should be printed only in the backend terminal.
+
+Example:
+
+```text
+[DEV OTP] OTP generated for citizen@example.com: 482731
+```
+
+Do not show the OTP in the frontend.
+
+Structure the OTP service so that a real email/SMS provider can be connected later.
+
+---
+
+# 10. OTP VERIFICATION API
+
+Create:
+
+```text
+POST /api/auth/verify-otp
+```
+
+Request:
+
+```json
+{
+  "email": "citizen@example.com",
+  "otp": "482731"
+}
+```
+
+If correct:
+
+```json
+{
+  "success": true,
+  "message": "OTP verified successfully"
+}
+```
+
+If incorrect:
+
+```json
+{
+  "success": false,
+  "message": "Invalid OTP"
+}
+```
+
+If expired:
+
+```json
+{
+  "success": false,
+  "message": "OTP has expired"
+}
+```
+
+---
+
+# 11. OTP VERIFICATION UI
+
+Create a clean OTP verification page.
+
+Display:
+
+```text
+Verify Your Account
+
+We sent a 6-digit OTP to:
+
+citizen@example.com
+
+[ _ ] [ _ ] [ _ ] [ _ ] [ _ ] [ _ ]
+
+[ Verify OTP ]
+
+Didn't receive the OTP?
+
+[ Resend OTP ]
+
+OTP expires in: 04:32
+```
+
+OTP input should:
+
+* Automatically move to the next box
+* Support backspace
+* Support pasting a 6-digit OTP
+* Show validation errors
+* Show countdown timer
+* Disable resend until cooldown expires
+
+---
+
+# 12. LOGIN
+
+Create a login page.
+
+Fields:
+
+```text
+Email / Mobile Number
+Password
+```
+
+Buttons:
+
+```text
+[ Login ]
+
+Forgot Password?
+
+Don't have an account?
+Register
+```
+
+Create API:
+
+```text
+POST /api/auth/login
+```
+
+The backend must verify:
+
+* User exists
+* Password is correct
+* Account is OTP verified
+* Account is active
+
+---
+
+# 13. JWT AUTHENTICATION
+
+After successful login, generate a JWT.
+
+Example response:
+
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "JWT_TOKEN",
+  "user": {
+    "id": "USR001",
+    "name": "Citizen Name",
+    "email": "citizen@example.com",
+    "role": "citizen",
+    "ward": "Ward 5"
+  }
+}
+```
+
+Protected API requests should use:
+
+```text
+Authorization: Bearer <JWT_TOKEN>
+```
+
+Create authentication middleware.
+
+The middleware should:
+
+1. Read JWT
+2. Verify JWT
+3. Identify user
+4. Attach user information to request
+5. Reject unauthorized requests
+
+---
+
+# 14. PASSWORD SECURITY
+
+Use bcrypt.
+
+Never store passwords as plain text.
+
+Registration:
+
+```text
+Password
+   ↓
+bcrypt hash
+   ↓
+Store hash
+```
+
+Login:
+
+```text
+Entered Password
+       ↓
+bcrypt.compare()
+       ↓
+Valid / Invalid
+```
+
+Never return:
+
+* Password
+* Password hash
+* OTP
+* OTP hash
+
+in normal API responses.
+
+---
+
+# 15. FORGOT PASSWORD
+
+Create a forgot password page.
+
+Flow:
+
+```text
+Forgot Password
+       ↓
+Enter Email/Mobile
+       ↓
+Send OTP
+       ↓
+Verify OTP
+       ↓
+Enter New Password
+       ↓
+Confirm Password
+       ↓
+Password Updated
+       ↓
+Login
+```
+
+Create:
+
+```text
+POST /api/auth/forgot-password
+```
+
+and:
+
+```text
+POST /api/auth/reset-password
+```
+
+Reset request example:
+
+```json
+{
+  "email": "citizen@example.com",
+  "otp": "482731",
+  "newPassword": "newpassword123"
+}
+```
+
+---
+
+# 16. ADMIN LOGIN
+
+Create a separate administrator login capability.
+
+Admin should login using:
+
+```text
+Email
+Password
+```
+
+Example demo credentials:
+
+```text
+Email: admin@example.com
+Password: admin123
+```
+
+Clearly mark these as demo credentials.
+
+Do not allow public users to create admin accounts.
+
+Use role-based authorization.
+
+---
+
+# 17. ROLE-BASED AUTHORIZATION
+
+Roles:
+
+```text
+citizen
+admin
+```
+
+Citizen can access:
+
+```text
+Citizen Dashboard
+My Issues
+Report Issue
+Issue Details
+Profile
+```
+
+Admin can access:
+
+```text
+Admin Dashboard
+All Issues
+Issue Management
+Statistics
+```
+
+A citizen must not be able to access admin APIs.
+
+---
+
+# 18. CITIZEN DASHBOARD
+
+Create a modern citizen dashboard.
+
+Header:
+
+```text
+Civic Issue Portal
+
+Home
+Report Issue
+My Issues
+Profile
+Logout
+```
+
+Dashboard cards:
+
+```text
+Total Issues
+Submitted
+In Progress
+Resolved
+```
+
+Example:
+
+```text
++----------------+  +----------------+
+| Total Issues   |  | Submitted      |
+|      12        |  |       3        |
++----------------+  +----------------+
+
++----------------+  +----------------+
+| In Progress    |  | Resolved       |
+|       4        |  |       5        |
++----------------+  +----------------+
+```
+
+Show a Recent Issues section.
+
+---
+
+# 19. REPORT CIVIC ISSUE
+
+Create a page:
+
+```text
+Report Civic Issue
+```
+
+Fields:
+
+* Issue Title
+* Issue Category
+* Description
+* Ward
+* Location
+* Landmark
+* Priority
+* Image
+* Contact Number
+
+Categories:
+
+```text
+Garbage/Waste
+Road Damage
+Streetlight
+Drainage
+Water Supply
+Public Infrastructure
+Illegal Dumping
+Public Toilet
+Other
+```
+
+The citizen should be able to upload an image.
+
+---
+
+# 20. ISSUE IMAGE UPLOAD
+
+Allow:
+
+* JPG
+* JPEG
+* PNG
+
+Maximum:
+
+```text
+5 MB
+```
+
+Validate file type and size.
+
+For the initial project, use temporary/local/mock storage.
+
+Do not require cloud storage.
+
+Structure the application so proper storage can be added later.
+
+---
+
+# 21. ISSUE PRIORITY
+
+Priority options:
+
+```text
+Low
+Medium
+High
+Critical
+```
+
+Display priority using badges.
+
+---
+
+# 22. ISSUE STATUS
+
+Status options:
+
+```text
+Submitted
+Under Review
+Assigned
+In Progress
+Resolved
+Rejected
+```
+
+The status flow should normally be:
+
+```text
+Submitted
+    ↓
+Under Review
+    ↓
+Assigned
+    ↓
+In Progress
+    ↓
+Resolved
+```
+
+Rejected can be used when an issue is invalid or outside the portal's scope.
+
+---
+
+# 23. CREATE ISSUE API
+
+Create:
+
+```text
+POST /api/issues
+```
+
+Example request:
+
+```json
+{
+  "title": "Broken streetlight",
+  "category": "Streetlight",
+  "description": "Streetlight near the main road is not working.",
+  "ward": "Ward 5",
+  "location": "Main Road",
+  "landmark": "Near Community Hall",
+  "priority": "High"
+}
+```
+
+The backend should generate an issue ID.
+
+Example:
+
+```text
+ISS001
+ISS002
+ISS003
+```
+
+Default status:
+
+```text
+Submitted
+```
+
+---
+
+# 24. MY ISSUES
+
+Create:
+
+```text
+My Issues
+```
+
+Display:
+
+| Issue ID | Title | Category | Date | Priority | Status | Action |
+| -------- | ----- | -------- | ---- | -------- | ------ | ------ |
+
+Action:
+
+```text
+View
+```
+
+Add:
+
+* Search
+* Status filter
+* Category filter
+* Priority filter
+* Date filter
+
+Search by:
+
+* Issue ID
+* Title
+* Category
+
+---
+
+# 25. ISSUE DETAILS
+
+When the citizen clicks View, display:
+
+```text
+Issue ID
+Issue Title
+Category
+Description
+Ward
+Location
+Landmark
+Date Reported
+Priority
+Current Status
+Submitted By
+Image
+Administrator Remarks
+```
+
+Also show a status timeline:
+
+```text
+✓ Submitted
+      ↓
+✓ Under Review
+      ↓
+✓ Assigned
+      ↓
+● In Progress
+      ↓
+○ Resolved
+```
+
+Highlight the current status.
+
+---
+
+# 26. ADMIN DASHBOARD
+
+Create a separate administrator dashboard.
+
+Navigation:
+
+```text
+Dashboard
+All Issues
+Reports
+Profile
+Logout
+```
+
+Statistics:
+
+```text
+Total Issues
+New Issues
+Under Review
+Assigned
+In Progress
+Resolved
+Rejected
+```
+
+Display basic charts/statistics if convenient.
+
+Do not make the dashboard unnecessarily complicated.
+
+---
+
+# 27. ADMIN ALL ISSUES PAGE
+
+Display:
+
+| ID | Title | Category | Ward | Citizen | Date | Priority | Status | Action |
+| -- | ----- | -------- | ---- | ------- | ---- | -------- | ------ | ------ |
+
+Action:
+
+```text
+View / Manage
+```
+
+Filters:
+
+* Status
+* Category
+* Priority
+* Ward
+* Date
+
+Search:
+
+* Issue ID
+* Title
+* Citizen
+* Category
+
+---
+
+# 28. ADMIN ISSUE MANAGEMENT
+
+Admin should be able to update:
+
+### Status
+
+```text
+Submitted
+Under Review
+Assigned
+In Progress
+Resolved
+Rejected
+```
+
+### Priority
+
+```text
+Low
+Medium
+High
+Critical
+```
+
+### Administrator Remark
+
+Example:
+
+```text
+Road repair team has been assigned.
+Work is expected to begin shortly.
+```
+
+Button:
+
+```text
+Update Issue
+```
+
+---
+
+# 29. ADMIN UPDATE API
+
+Create:
+
+```text
+PUT /api/issues/:id
+```
+
+Example:
+
+```json
+{
+  "status": "In Progress",
+  "priority": "High",
+  "adminRemark": "Repair team has been assigned."
+}
+```
+
+Only authenticated administrators should be allowed to update issue status and priority.
+
+---
+
+# 30. REST API
+
+Create these APIs.
+
+## Authentication
+
+```text
+POST /api/auth/register
+POST /api/auth/send-otp
+POST /api/auth/verify-otp
+POST /api/auth/login
+POST /api/auth/logout
+POST /api/auth/forgot-password
+POST /api/auth/reset-password
+```
+
+## Issues
+
+```text
+GET /api/issues
+GET /api/issues/:id
+POST /api/issues
+PUT /api/issues/:id
+DELETE /api/issues/:id
+```
+
+## Citizen Issues
+
+```text
+GET /api/users/:userId/issues
+```
+
+## Status
+
+```text
+PATCH /api/issues/:id/status
+```
+
+## Priority
+
+```text
+PATCH /api/issues/:id/priority
+```
+
+## Profile
+
+```text
+GET /api/users/profile
+PUT /api/users/profile
+```
+
+---
+
+# 31. API RESPONSE FORMAT
+
+Use consistent JSON responses.
+
+Success:
+
+```json
+{
+  "success": true,
+  "message": "Issue created successfully",
+  "data": {
+    "id": "ISS001",
+    "title": "Broken streetlight",
+    "status": "Submitted"
+  }
+}
+```
+
+Error:
+
+```json
+{
+  "success": false,
+  "message": "Issue not found"
+}
+```
+
+Validation error:
+
+```json
+{
+  "success": false,
+  "message": "Description is required"
+}
+```
+
+Use appropriate HTTP status codes.
+
+---
+
+# 32. BACKEND FOLDER STRUCTURE
+
+Use a clean modular structure:
+
+```text
+backend/
+│
+├── server.js
+├── package.json
+├── .env
+├── .env.example
+│
+├── routes/
+│   ├── authRoutes.js
+│   ├── issueRoutes.js
+│   └── userRoutes.js
+│
+├── controllers/
+│   ├── authController.js
+│   ├── issueController.js
+│   └── userController.js
+│
+├── services/
+│   └── otpService.js
+│
+├── models/
+│   ├── userModel.js
+│   └── issueModel.js
+│
+├── middleware/
+│   ├── authMiddleware.js
+│   ├── roleMiddleware.js
+│   └── errorMiddleware.js
+│
+├── utils/
+│   ├── otpGenerator.js
+│   └── tokenGenerator.js
+│
+└── data/
+    └── mockData.js
+```
+
+Keep controllers, routes, models, services, and middleware separate.
+
+---
+
+# 33. FRONTEND FOLDER STRUCTURE
+
+Use:
+
+```text
+frontend/
+│
+├── package.json
+│
+├── src/
+│   │
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   ├── Sidebar.jsx
+│   │   ├── IssueCard.jsx
+│   │   ├── StatusBadge.jsx
+│   │   ├── PriorityBadge.jsx
+│   │   ├── Loading.jsx
+│   │   └── ProtectedRoute.jsx
+│   │
+│   ├── pages/
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── VerifyOTP.jsx
+│   │   ├── ForgotPassword.jsx
+│   │   ├── ResetPassword.jsx
+│   │   ├── CitizenDashboard.jsx
+│   │   ├── ReportIssue.jsx
+│   │   ├── MyIssues.jsx
+│   │   ├── IssueDetails.jsx
+│   │   ├── Profile.jsx
+│   │   ├── AdminDashboard.jsx
+│   │   ├── AdminIssues.jsx
+│   │   └── AdminIssueDetails.jsx
+│   │
+│   ├── services/
+│   │   └── api.js
+│   │
+│   ├── context/
+│   │   └── AuthContext.jsx
+│   │
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+```
+
+---
+
+# 34. ROUTING
+
+Use React Router.
+
+Public routes:
+
+```text
+/login
+/register
+/verify-otp
+/forgot-password
+/reset-password
+```
+
+Citizen routes:
+
+```text
+/dashboard
+/report-issue
+/my-issues
+/issues/:id
+/profile
+```
+
+Admin routes:
+
+```text
+/admin/dashboard
+/admin/issues
+/admin/issues/:id
+```
+
+Protect authenticated routes.
+
+Redirect unauthorized users to the login page.
+
+Redirect citizens away from admin pages.
+
+---
+
+# 35. UI DESIGN
+
+The UI should be:
+
+* Modern
+* Minimal
+* Professional
+* Clean
+* Responsive
+* Easy to use
+* Suitable for a civic/government portal
+
+Use a simple professional color scheme.
+
+Use:
+
+* Cards
+* Tables
+* Forms
+* Badges
+* Buttons
+* Navigation bar
+* Sidebar for admin
+* Responsive layouts
+* Modal/dialog where useful
+
+Do not make the UI overly complicated.
+
+---
+
+# 36. RESPONSIVE DESIGN
+
+The application must work properly on:
+
+* Desktop
+* Laptop
+* Tablet
+* Mobile
+
+On mobile:
+
+* Navigation should collapse appropriately.
+* Tables should become responsive.
+* Forms should fit the screen.
+* Dashboard cards should stack.
+* Buttons should remain easy to use.
+
+---
+
+# 37. FORM VALIDATION
+
+Frontend validation:
+
+* Required fields
+* Valid email
+* Valid mobile number
+* Password length
+* Confirm password
+* Issue title length
+* Description length
+* Image type
+* Image size
+
+Backend validation must also be implemented.
+
+Never rely only on frontend validation.
+
+Display clear messages such as:
+
+```text
+Please enter a valid email address.
+
+Password must contain at least 8 characters.
+
+Passwords do not match.
+
+Description is required.
+
+Image size must be less than 5 MB.
+```
+
+---
+
+# 38. ERROR HANDLING
+
+Backend should handle:
+
+* Invalid requests
+* Missing fields
+* Invalid issue ID
+* Invalid OTP
+* Expired OTP
+* Too many OTP attempts
+* Unauthorized requests
+* Forbidden requests
+* Invalid JWT
+* Server errors
+
+Create Express error-handling middleware.
+
+Frontend should display friendly error messages.
+
+Do not display raw stack traces to users.
+
+---
+
+# 39. CORS
+
+Configure CORS so that React can communicate with Express.
+
+Example:
+
+```text
+Frontend:
+http://localhost:3000
+
+Backend:
+http://localhost:5000
+```
+
+---
+
+# 40. ENVIRONMENT VARIABLES
+
+Create:
+
+```text
+.env.example
+```
+
+Example:
+
+```text
+PORT=5000
+JWT_SECRET=change_this_secret
+OTP_MODE=development
+OTP_EXPIRY_MINUTES=5
+OTP_RESEND_COOLDOWN=60
+```
+
+Do not hard-code secrets.
+
+---
+
+# 41. MOCK DATA
+
+Create approximately 8–10 sample civic issues.
+
+Example:
+
+```text
+ISS001
+Title: Broken Streetlight
+Category: Streetlight
+Ward: Ward 5
+Priority: High
+Status: Submitted
+
+ISS002
+Title: Garbage Accumulation
+Category: Garbage/Waste
+Ward: Ward 5
+Priority: Medium
+Status: In Progress
+
+ISS003
+Title: Road Pothole
+Category: Road Damage
+Ward: Ward 3
+Priority: Critical
+Status: Resolved
+
+ISS004
+Title: Blocked Drain
+Category: Drainage
+Ward: Ward 2
+Priority: High
+Status: Under Review
+
+ISS005
+Title: Water Supply Problem
+Category: Water Supply
+Ward: Ward 4
+Priority: Medium
+Status: Assigned
+```
+
+Use different categories, statuses, priorities, and wards.
+
+This should make the dashboard immediately demonstrable.
+
+---
+
+# 42. DEMO USERS
+
+Provide demo accounts.
+
+Citizen:
+
+```text
+Email: citizen@example.com
+Password: citizen123
+```
+
+Admin:
+
+```text
+Email: admin@example.com
+Password: admin123
+```
+
+Clearly identify these as development/demo accounts.
+
+The citizen account should be considered OTP verified in the mock data so that it can be used immediately.
+
+---
+
+# 43. SQL-READY ARCHITECTURE
+
+This is extremely important.
+
+Do not implement SQL yet.
+
+But design the application so SQL can be added later.
+
+The architecture should be:
+
+```text
+React Frontend
+       ↓
+REST API
+       ↓
+Express Controllers
+       ↓
+Services / Models
+       ↓
+SQL Database
+```
+
+For now:
+
+```text
+React Frontend
+       ↓
+REST API
+       ↓
+Express Controllers
+       ↓
+Services / Models
+       ↓
+Mock/In-Memory Data
+```
+
+Later, I should only need to replace the model/data layer with SQL queries.
+
+Do not put database logic inside React components.
+
+Do not put SQL queries directly inside route files.
+
+---
+
+# 44. FUTURE SQL TABLE DESIGN
+
+Design the code with future tables such as:
+
+## users
+
+```text
+id
+name
+email
+mobile
+password_hash
+ward
+address
+role
+is_verified
+is_active
+created_at
+updated_at
+```
+
+## otp_verifications
+
+```text
+id
+user_id
+otp_hash
+expires_at
+attempts
+is_used
+created_at
+```
+
+## issues
+
+```text
+id
+issue_number
+user_id
+title
+category
+description
+ward
+location
+landmark
+priority
+status
+image
+admin_remark
+created_at
+updated_at
+```
+
+## issue_status_history
+
+```text
+id
+issue_id
+status
+remark
+updated_by
+created_at
+```
+
+Do NOT create these SQL tables now.
+
+Only make the application architecture compatible with them.
+
+---
+
+# 45. ISSUE STATUS HISTORY
+
+Implement the concept of status history using mock data.
+
+Whenever an administrator changes an issue status, record:
+
+```text
+Status
+Date/Time
+Updated By
+Remark
+```
+
+Example:
+
+```text
+Submitted
+19 Sep 2026, 10:30 AM
+Citizen
+
+Under Review
+19 Sep 2026, 11:15 AM
+Ward Admin
+
+Assigned
+19 Sep 2026, 12:00 PM
+Ward Admin
+
+In Progress
+20 Sep 2026, 09:00 AM
+Ward Admin
+```
+
+This will later map easily to the SQL `issue_status_history` table.
+
+---
+
+# 46. API SERVICE ON FRONTEND
+
+Create:
+
+```text
+src/services/api.js
+```
+
+Centralize all API requests there.
+
+Example functions:
+
+```text
+registerUser()
+sendOTP()
+verifyOTP()
+loginUser()
+forgotPassword()
+resetPassword()
+
+getIssues()
+getIssueById()
+createIssue()
+updateIssue()
+deleteIssue()
+
+getMyIssues()
+updateIssueStatus()
+updateIssuePriority()
+```
+
+Do not make random API requests throughout every component.
+
+---
+
+# 47. AUTH CONTEXT
+
+Create an authentication context:
+
+```text
+AuthContext.jsx
+```
+
+It should manage:
+
+* Current user
+* JWT token
+* Login
+* Logout
+* Authentication state
+* User role
+
+Store authentication state appropriately.
+
+Use protected routes.
+
+---
+
+# 48. LOGOUT
+
+Create:
+
+```text
+POST /api/auth/logout
+```
+
+For the prototype, logout should clear the frontend authentication state/token.
+
+Redirect the user to:
+
+```text
+/login
+```
+
+---
+
+# 49. SECURITY
+
+Implement basic security practices:
+
+* bcrypt password hashing
+* JWT authentication
+* Role-based authorization
+* Input validation
+* OTP expiration
+* OTP attempt limits
+* OTP resend cooldown
+* CORS
+* Environment variables
+* No passwords in responses
+* No OTP in frontend responses
+* Protected APIs
+* Proper HTTP status codes
+
+Use secure random generation for OTP.
+
+---
+
+# 50. README
+
+Create a detailed `README.md`.
+
+It must contain:
+
+## Project Name
+
+Minimal Ward-Level Civic Issue Tracking Portal
+
+## Description
+
+Explain what the project does.
+
+## Features
+
+List:
+
+* OTP registration
+* Login
+* JWT authentication
+* Forgot password
+* Citizen dashboard
+* Issue reporting
+* Image upload
+* Complaint tracking
+* Admin dashboard
+* Issue management
+* Status updates
+* Priority management
+* REST API
+* SQL-ready architecture
+
+## Technologies
+
+```text
+React
+JavaScript
+HTML
+CSS
+Node.js
+Express.js
+JWT
+bcrypt
+REST API
+```
+
+## Installation
+
+Explain:
+
+```bash
+npm install
+```
+
+How to start backend:
+
+```bash
+npm run dev
+```
+
+How to start frontend:
+
+```bash
+npm run dev
+```
+
+Provide the correct commands based on the generated project.
+
+## API Documentation
+
+Document all important API endpoints.
+
+## Demo Credentials
+
+Provide citizen and admin credentials.
+
+## OTP Development Mode
+
+Explain how development OTP works.
+
+## Future SQL Integration
+
+Explain where SQL database code should be added later.
+
+---
+
+# 51. PACKAGE CONFIGURATION
+
+Make sure all required dependencies are included.
+
+Backend may use:
+
+```text
+express
+cors
+dotenv
+bcrypt
+jsonwebtoken
+```
+
+Frontend may use:
+
+```text
+react
+react-dom
+react-router-dom
+axios
+```
+
+Add other dependencies only if genuinely necessary.
+
+---
+
+# 52. PROJECT RUNNING REQUIREMENT
+
+The generated project should run without a SQL database.
+
+I should be able to:
+
+1. Install dependencies.
+2. Start the backend.
+3. Start the frontend.
+4. Register a citizen.
+5. Receive/view development OTP through the backend terminal.
+6. Verify OTP.
+7. Login.
+8. Report an issue.
+9. View the issue.
+10. Login as admin.
+11. View the issue.
+12. Change its status.
+13. Change its priority.
+14. Add an administrator remark.
+15. Login again as citizen.
+16. See the updated status.
+
+Everything above must work using mock/in-memory data.
+
+---
+
+# 53. FINAL PROJECT FLOW
+
+The complete system should work like this:
+
+```text
+                    CIVIC ISSUE PORTAL
+                           |
+             +-------------+-------------+
+             |                           |
+          CITIZEN                     ADMIN
+             |                           |
+        Registration                  Login
+             |                           |
+          Send OTP                  Dashboard
+             |                           |
+        Verify OTP                 All Issues
+             |                           |
+           Login                 View Issue
+             |                           |
+        Dashboard               Update Status
+             |                           |
+       Report Issue              Update Priority
+             |                           |
+       Submit Issue              Add Remarks
+             |                           |
+       Track Issue               Statistics
+             |
+       View History
+```
+
+---
+
+# 54. IMPORTANT RESTRICTIONS
+
+Do NOT add unnecessary features such as:
+
+* Online payments
+* E-commerce
+* Social media
+* Chatbot
+* Cryptocurrency
+* Complex GIS
+* Real-time messaging
+* Unnecessary AI features
+
+Keep the project focused on:
+
+**Ward-level civic issue reporting and tracking.**
+
+---
+
+# 55. FINAL DELIVERABLE
+
+Generate the complete working project with:
+
+1. React frontend
+2. Node.js backend
+3. Express REST API
+4. OTP registration
+5. OTP verification
+6. Login
+7. JWT authentication
+8. Forgot password with OTP
+9. Citizen dashboard
+10. Admin dashboard
+11. Civic issue reporting
+12. Image upload support
+13. Issue tracking
+14. Status management
+15. Priority management
+16. Administrator remarks
+17. Search
+18. Filtering
+19. Form validation
+20. Error handling
+21. Role-based authorization
+22. Mock data
+23. SQL-ready architecture
+24. `.env.example`
+25. Complete README
+26. API documentation
+27. Demo accounts
+
+The project must be **fully functional without SQL** and must use mock/in-memory data initially.
+
+Most importantly, structure the code so that **I can add MySQL/PostgreSQL later without changing the frontend or rewriting the entire backend**.
+
+The final result should look like a professional but minimal **Ward-Level Civic Issue Tracking Portal** suitable for a college open-end/full-stack project.

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Ward Civic Issue Portal"
+description = "A full-stack civic issue reporting and tracking portal for citizens and ward administrators, with OTP-ready authentication, issue management, status history, and mock data that can later move to SQL."
+version = "1.0.0"
+id = "artifacts/ward-civic-portal"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19380
+
+[services.development]
+run = "pnpm --filter @workspace/ward-civic-portal run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/ward-civic-portal", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/ward-civic-portal/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19380"
+BASE_PATH = "/"
